@@ -13,11 +13,21 @@ book_authors = {
     'Herman Melville': [2701, 11231, 15859, 21816, 34970, 10712],
     'Jane Austen': [1342, 158, 161, 105, 121, 141]
 }
+book_authors_train = book_authors
 book_authors_test = {
     'Charles Dickens': [786, 580, 883],
     'Herman Melville': [4045, 8118, 2694, 13720, 53861],
     'Jane Austen': [946, 1212]
 }
+book_authors_all = {}
+for key in book_authors_train.keys():
+    book_authors_all[key] = book_authors_train[key] + book_authors_test[key]
+
+def get_book_authors_all():
+    book_authors = {}
+    for key in book_authors_train.keys():
+        book_authors[key] = book_authors_train[key] + book_authors_test[key]
+    return book_authors_all
 
 def load_book_contents(book_authors):
     # Load in the text of the books from Project Gutenberg
@@ -210,3 +220,20 @@ def get_uniq_ngrams_all(author_ngs_combined):
         # Convert to a list and back to a series to get the proper
         uniq_all_ng[author] = pd.Series(ngs.ng.tolist())
     return pd.DataFrame(uniq_all_ng)
+
+def get_samples(books_wtoks, num_samples=100, sample_length=1000, random_seed=42):
+    book_samples = {}
+    for book_id, words in books_wtoks.items():
+        np.random.seed(random_seed)
+        book_len = len(words)
+        for i in range(0, num_samples):
+            start_idx = int(np.random.random(1)[0] * (book_len - sample_length))
+            sample = words[start_idx:start_idx+sample_length]
+            sample_length
+            book_samples[f'{book_id}_{i}'] = sample
+    return book_samples
+    samples_df = pd.DataFrame(book_samples)
+    return samples_df
+
+def get_data_df():
+    pass
