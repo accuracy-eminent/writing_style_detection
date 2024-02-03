@@ -221,19 +221,17 @@ def get_uniq_ngrams_all(author_ngs_combined):
         uniq_all_ng[author] = pd.Series(ngs.ng.tolist())
     return pd.DataFrame(uniq_all_ng)
 
-def get_samples(books_wtoks, num_samples=100, sample_length=1000, random_seed=42):
+def get_samples(books_wtoks, num_samples=100, sample_lengths=[500,1500], random_seed=42):
     book_samples = {}
     for book_id, words in books_wtoks.items():
         np.random.seed(random_seed)
         book_len = len(words)
         for i in range(0, num_samples):
+            sample_length = np.random.randint(low=sample_lengths[0], high=sample_lengths[1])
             start_idx = int(np.random.random(1)[0] * (book_len - sample_length))
             sample = words[start_idx:start_idx+sample_length]
-            sample_length
             book_samples[f'{book_id}_{i}'] = sample
     return book_samples
-    samples_df = pd.DataFrame(book_samples)
-    return samples_df
 
 def get_data_df():
     pass
