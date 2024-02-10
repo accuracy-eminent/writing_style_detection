@@ -233,5 +233,60 @@ def get_samples(books_wtoks, num_samples=100, sample_lengths=[500,1500], random_
             book_samples[f'{book_id}_{i}'] = sample
     return book_samples
 
-def get_data_df():
-    pass
+
+# Use ngram frequency as features
+# cd_1grams is the frequency of 1-grams associated with Charles Dickens, for example
+def get_data_df(book_samples, book_authors):
+    ref_grams = {}
+    ref_grams[1] = {
+        'cd': [('t',), ('don',), ('boy',), ('until',), ('stopped',), ('hair',), ('d',), ('streets',), ('shook',), ('shaking',)],
+        'ja':[('her',), ('she',), ('She',), ('Mrs.',), ('herself',), ('sister',), ('father',), ('Lady',), ('wish',), ('Sir',)],
+        'hm':[('sea',), ('strange',), ('THE',), ('Nor',), ('board',), ('ye',), ('ere',), ('peculiar',), ('concerning',), ('original',)]
+    }
+    ref_grams[2] = {
+        'cd':[('’', 't'), ('don', '’'), (',', 'Mr.'), ('said', 'the'), ('his', 'head'), ('the', 'fire'), (',', 'looking'), ('I', 'said'), ('s', 'a'), ('“', 'Now')],
+        'ja':[('.', 'She'), (',', 'she'), ('of', 'her'), ('she', 'had'), ('could', 'not'), ('to', 'her'), ('she', 'was'), ('that', 'she'), ('do', 'not'), ('she', 'could')],
+        'hm':[(',', 'then'), (',', 'yet'), (';', 'in'), ('.', 'Nor'), ('so', 'that'), ('when', ','), ('.', 'Some'), ('though', ','), (';', 'while'), ('.', 'Upon')]
+    }
+    ref_grams[3] = {
+        'cd': [('don', '’', 't'), ('!', '”', 'said'), ('?', '”', 'said'), ('’', 's', 'a'), ('.', '“', 'Now'), ('.', 'I', 'had'), ('as', 'if', 'he'), ('“', 'Now', ','), ('he', 'said', ','), ('.', '“', 'Yes')],
+        'ja': [(',', 'however', ','), ('I', 'am', 'sure'), ('I', 'do', 'not'), (',', 'and', 'she'), ('.', 'She', 'was'), ('she', 'could', 'not'), ('.', 'She', 'had'), (',', 'she', 'was'), (';', 'and', 'she'), ('“', 'Oh', '!')],
+        'hm': [(',', 'then', ','), (',', 'who', ','), ('.', 'But', 'the'), ('“', 'I', 'would'), (',', 'like', 'the'), ('that', ',', 'in'), (',', 'that', 'in'), ('answer', '.', '“'), ('out', 'of', 'sight'), (',', 'in', 'some')]
+    }
+    data_dict = {}
+    for sample_id, words in book_samples.items():
+        sample_row = {}
+        get_ngrams = lambda words, gram_length: pd.Series(sorted(ngrams(words, gram_length))).value_counts()
+        top_grams = {}
+        # Calculate 1 to 3-grarms
+        for gram_length in range(1, 4):
+            top_grams[gram_length] = get_ngrams(words, gram_length)
+        # Find the number of reference ngrams by author in each sample
+        for author in ref_grams[1].keys():
+            for gram_length in range(1, 4):
+                top_grams_count = top_grams[gram_length]
+                # Uese only the first 5 ngrams
+                author_ref_grams = ref_grams[gram_length][author]#[0:5]
+                author_grams_count = top_grams_count.reindex(author_ref_grams)
+                # Normalize it by the length of the text
+                sample_row[f'{author}_{gram_length}grams'] = author_grams_count.sum() / len(words)
+        data_dict[sample_id] = sample_row
+    # Create the initial data frame
+    data_df = pd.DataFrame(data_dict).T
+    data_df = (
+        data_df
+        .reset_index()
+        .rename(columns={'index':'sample_id'})
+    )
+    # Clean data, attack to book authors 
+    data_df = (
+        data_df
+        .assign(book_id=lambda x: x.sample_id.str.split("_").apply(lambda y: y[0]).astype(float))
+        .assign(sample_num=lambda x: x.sample_id.str.split("_").apply(lambda y: y[1]).astype(float))
+        .drop('sample_id', axis=1)
+    )
+    book_authors_df = pd.melt(pd.DataFrame.from_dict({k:pd.Series(v) for k, v in book_authors.items()}))
+    book_authors_df.columns = ['author_name', 'book_id']
+    data_df = data_df.merge(book_authors_df, on='book_id', how='left')
+    data_df = data_df.drop(['book_id','sample_num'], axis=1)
+    return data_df
