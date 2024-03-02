@@ -227,7 +227,10 @@ def get_samples(books_wtoks, num_samples=100, sample_lengths=[500,1500], random_
         np.random.seed(random_seed)
         book_len = len(words)
         for i in range(0, num_samples):
-            sample_length = np.random.randint(low=sample_lengths[0], high=sample_lengths[1])
+            if sample_lengths[0] == sample_lengths[1]:
+                sample_length = sample_lengths[0]
+            else:
+                sample_length = np.random.randint(low=sample_lengths[0], high=sample_lengths[1])
             start_idx = int(np.random.random(1)[0] * (book_len - sample_length))
             sample = words[start_idx:start_idx+sample_length]
             book_samples[f'{book_id}_{i}'] = sample
@@ -290,3 +293,5 @@ def get_data_df(book_samples, book_authors):
     data_df = data_df.merge(book_authors_df, on='book_id', how='left')
     data_df = data_df.drop(['book_id','sample_num'], axis=1)
     return data_df
+
+# Code for PyTorch model

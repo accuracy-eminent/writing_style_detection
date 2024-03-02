@@ -1,6 +1,9 @@
 # Custom
 texts/
 journal.md
+# PyTorch
+*.pt
+*.pth
 
 #Byte-compiled / optimized / DLL files
 __pycache__/
