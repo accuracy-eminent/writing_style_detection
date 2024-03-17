@@ -1,5 +1,6 @@
 # Custom
 texts/
+texts/*
 journal.md
 # PyTorch
 *.pt
