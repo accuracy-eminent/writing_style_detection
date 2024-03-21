@@ -6,6 +6,7 @@ import string
 from nltk import ngrams
 from nltk.tokenize import word_tokenize, sent_tokenize, RegexpTokenizer
 from plotnine import *
+from collections import Counter
 
 # Create training and testing datasets
 book_authors = {
@@ -295,3 +296,19 @@ def get_data_df(book_samples, book_authors):
     return data_df
 
 # Code for PyTorch model
+def get_author_num(data, sample_id, authors=['Charles Dickens', 'Jane Austen','Herman Melville']):
+    sample_id = int(str(sample_id).split("_")[0])
+    authors_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
+    author_name = pd.melt(authors_df).query("value == @sample_id").variable.tolist()[0]
+    return authors.index(author_name)
+def stretch(arr, min_len, pad='<PAD>'):
+    return arr + (min_len-len(arr))* [pad]
+def get_data_nn(book_samples, book_authors, stretch_len=1100, pad='pad'):
+    data = [(stretch(words, stretch_len, pad), get_author_num(book_authors, sample_id)) for sample_id, words in book_samples.items()]
+    return data
+def get_vocab(data):
+    all_words = [word for words, _ in data for word in words]
+    word_counts = Counter(all_words)
+    vocab = {word: idx + 1 for idx, (word, count) in enumerate(word_counts.most_common(1000))}
+    vocab['<PAD>'] = 0
+    return vocab
