@@ -306,9 +306,9 @@ def stretch(arr, min_len, pad='<PAD>'):
 def get_data_nn(book_samples, book_authors, stretch_len=1100, pad='pad'):
     data = [(stretch(words, stretch_len, pad), get_author_num(book_authors, sample_id)) for sample_id, words in book_samples.items()]
     return data
-def get_vocab(data):
+def get_vocab(data, vocab_size=1000):
     all_words = [word for words, _ in data for word in words]
     word_counts = Counter(all_words)
-    vocab = {word: idx + 1 for idx, (word, count) in enumerate(word_counts.most_common(1000))}
+    vocab = {word: idx + 1 for idx, (word, count) in enumerate(word_counts.most_common(vocab_size-1))}
     vocab['<PAD>'] = 0
     return vocab

@@ -65,7 +65,11 @@ class TabularModel(Model):
 class NNModel(Model):
     def __init__(self, embedding_dim=64, hidden_size=128, num_classes=3, vocab_size=1000):
         # TODO: define vocab
-        # self.vocab = load vocab from files
+        # self.vocab = load vocab from file
+        embedding_dim = 64
+        hidden_size = 128
+        num_classes = 3
+        vocab_size = 1000
         self.model = AuthorClassifier(vocab_size, embedding_dim, hidden_size, num_classes)
     def load_weights(self):
         self.model(model.load_state_dict(torch.load("../data/weights_new.pth")()))

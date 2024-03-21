@@ -18,7 +18,7 @@ book_samples_test = utils.get_samples(books_test_wtoks, 100, [500, 1000], random
 # %%
 train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, 1000)
 test_data = utils.get_data_nn(book_samples_test, utils.book_authors_test, 1000)
-vocab = get_vocab(train_data)
+vocab = utils.get_vocab(train_data)
 
 # %%
 model = md.NNModel()
