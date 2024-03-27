@@ -3,8 +3,14 @@ import pandas as pd
 import numpy as np
 import utils
 
+def classify(text):
+    return len(text)
+
 st.title("Detection of writing style")
+st.write("Was the text written by Herman Melville, Jane Austen, or Charles Dickens?")
 
-st.write("")
+text_box = st.text_area('Text to classify', placeholder='Enter text here')
 
-st.text_area()
+if st.button('Classify'):
+    chars = classify(text_box)
+    st.write(f"There are {chars} characters in the text")

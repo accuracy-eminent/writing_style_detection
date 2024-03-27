@@ -14,8 +14,8 @@ book_contents_test = utils.load_book_contents(utils.book_authors_test)
 books_train_wtoks = utils.wtok_books(book_contents_train)
 books_test_wtoks = utils.wtok_books(book_contents_test)
 # Get 100 samples per book of around 1000 words each
-book_samples_train = utils.get_samples(books_train_wtoks, 100, [500, 1000], random_seed=42)
-book_samples_test = utils.get_samples(books_test_wtoks, 100, [500, 1000], random_seed=42)
+book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], random_seed=42)
+book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
 
 # %%
 train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, 1000)
@@ -74,7 +74,7 @@ print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
 # %%
 # Save model weights
-torch.save(nn_model.state_dict, "../data/nn.pth")
+torch.save(nn_model.state_dict, "../data/nn_100_1000.pth")
 
 
 # %%
