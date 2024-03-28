@@ -291,6 +291,8 @@ def get_data_df(book_samples, book_authors):
     )
     book_authors_df = pd.melt(pd.DataFrame.from_dict({k:pd.Series(v) for k, v in book_authors.items()}))
     book_authors_df.columns = ['author_name', 'book_id']
+    print(data_df)
+    print(book_authors_df)
     data_df = data_df.merge(book_authors_df, on='book_id', how='left')
     data_df = data_df.drop(['book_id','sample_num'], axis=1)
     return data_df

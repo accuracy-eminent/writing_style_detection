@@ -2,6 +2,10 @@ from sklearn.ensemble import GradientBoostingClassifier
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
+import pickle
+import utils
+from nltk.tokenize import word_tokenize, sent_tokenize, RegexpTokenizer
+
 
 class AuthorClassifier(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_size, num_classes):
@@ -54,12 +58,26 @@ class TabularModel(Model):
     def train(self, train_data, test_data):
         pass
     def load_weights(self, file):
-        self.model = pickle.load(file)
+        with open(file, "rb") as f:
+            self.model = pickle.load(f)
     def _load_data(self, data):
-        out_data = utils.get_data_df([data], ['unknown'])
+        import pandas as pd
+        print("Data:")
+        print(data)
+        data = word_tokenize(data)
+        print(data)
+        out_data = (
+            utils.get_data_df({'999_0':data}, {'unknown':999})
+            .drop(['author_name'], axis=1)
+            .filter(['cd_1grams','cd_2grams','cd_3grams','ja_1grams','ja_2grams','ja_3grams','hm_1grams','hm_2grams','hm_3grams'])
+        )
+        pd.set_option('display.max_colwidth', None)
+        print(out_data)
         return out_data
     def predict(self, data):
+        self.data = self._load_data(data)
         y_pred = self.model.predict_proba(self.data)
+        y_pred = self.model.predict(self.data)
         return y_pred
 
 class NNModel(Model):
@@ -71,9 +89,10 @@ class NNModel(Model):
         num_classes = 3
         vocab_size = 1000
         self.model = AuthorClassifier(vocab_size, embedding_dim, hidden_size, num_classes)
-    def load_weights(self):
-        self.model(model.load_state_dict(torch.load("../data/weights_new.pth")()))
+    def load_weights(self, file):
+        self.model(model.load_state_dict(torch.load(file)()))
     def _load_data(self, data):
+        data = self._load_data(data)
         out_data = TextDataset(data, self.vocab)
         return out_data
     def predict(self):
