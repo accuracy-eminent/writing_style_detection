@@ -34,13 +34,13 @@ vocab_df = (
     pd.DataFrame({k: pd.Series(v) for k, v in vocab.items()})
     .T.reset_index()
 )
-vocab_df.columns = ['name', 'num']
+vocab_df.columns = ['word', 'num']
 vocab_df.to_csv("../data/vocab.csv", index=False)
 
 # %%
 # Load the vocab
 vocab_df = pd.read_csv("../data/vocab.csv")
-vocab_loaded = pd.Series(vocab_df.num, index=vocab_df.word).to_dict()
+vocab_loaded = pd.Series(vocab_df.num.tolist(), index=vocab_df.word.tolist()).to_dict()
 
 
 # %%
@@ -85,9 +85,6 @@ for epoch in range(num_epochs):
         optimizer.step()
     print("Loss:", np.mean(loss_vals))
     print("Accuracy: ", 100 * total_correct / total_samples)
-
-# %%
-nn_model.load_state_dict(torch.load("../data/nn.pth")())
 
 # %%
 # Evaluation
