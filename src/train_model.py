@@ -23,7 +23,21 @@ test_data = utils.get_data_nn(book_samples_test, utils.book_authors_test, 1000)
 vocab = utils.get_vocab(train_data)
 
 # %%
-model = md.NNModel()
+# Save the vocab
+vocab_df = (
+    pd.DataFrame({k: pd.Series(v) for k, v in vocab.items()})
+    .T.reset_index()
+)
+vocab_df.columns = ['name', 'num']
+vocab_df.to_csv("../data/vocab.csv", index=False)
+
+# %%
+# Load the vocab
+vocab_df = pd.read_csv("../data/vocab.csv")
+vocab_loaded = pd.Series(vocab_df.name, index=vocab_df.num).to_dict()
+
+# %%
+model = md.NNModel(vocab_loaded)
 nn_model = model.get_raw_model()
 
 # %%
@@ -36,26 +50,33 @@ from torch.utils.data import DataLoader
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(nn_model.parameters(), lr=0.001)
 
-train_dataset = md.TextDataset(train_data, vocab)
-test_dataset = md.TextDataset(test_data, vocab)
+train_dataset = md.TextDataset(train_data, vocab_loaded)
+test_dataset = md.TextDataset(test_data, vocab_loaded)
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+
 # %%
 # Training loop
-num_epochs = 10
+num_epochs = 2
 for epoch in range(num_epochs):
     print(epoch)
     nn_model.train()
     loss_vals = []
+    total_correct = 0
+    total_samples = 0
     for inputs, labels in train_loader:
         optimizer.zero_grad()
         outputs = nn_model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         loss_vals.append(loss.item())
+        _, pred_labels = torch.max(outputs, 1)
+        total_correct += (pred_labels == labels).sum().item()
+        total_samples += labels.size(0)
         optimizer.step()
-    print(np.mean(loss_vals))
+    print("Loss:", np.mean(loss_vals))
+    print("Accuracy: ", 100 * total_correct / total_samples)
 # %%
 # Evaluation
 nn_model.eval()
