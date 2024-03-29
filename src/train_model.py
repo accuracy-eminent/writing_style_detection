@@ -18,9 +18,15 @@ book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], rando
 book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
 
 # %%
-train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, 1000)
-test_data = utils.get_data_nn(book_samples_test, utils.book_authors_test, 1000)
+# Get size of training data
+[len(item[0]) for item in train_data]
+
+# %%
+train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, None)
+test_data = utils.get_data_nn(book_samples_test, utils.book_authors_test, None)
 vocab = utils.get_vocab(train_data)
+# Vocab is of the format: {word, number}
+
 
 # %%
 # Save the vocab
@@ -34,11 +40,8 @@ vocab_df.to_csv("../data/vocab.csv", index=False)
 # %%
 # Load the vocab
 vocab_df = pd.read_csv("../data/vocab.csv")
-vocab_loaded = pd.Series(vocab_df.name, index=vocab_df.num).to_dict()
+vocab_loaded = pd.Series(vocab_df.num, index=vocab_df.word).to_dict()
 
-# %%
-model = md.NNModel(vocab_loaded)
-nn_model = model.get_raw_model()
 
 # %%
 # Model, loss, optimizer
@@ -47,18 +50,23 @@ import torch.nn as nn
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
+torch.manual_seed(42)
+
+model = md.NNModel(vocab_loaded)
+nn_model = model.get_raw_model()
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(nn_model.parameters(), lr=0.001)
 
 train_dataset = md.TextDataset(train_data, vocab_loaded)
 test_dataset = md.TextDataset(test_data, vocab_loaded)
 
+
 train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 # %%
 # Training loop
-num_epochs = 2
+num_epochs = 10
 for epoch in range(num_epochs):
     print(epoch)
     nn_model.train()
@@ -77,6 +85,10 @@ for epoch in range(num_epochs):
         optimizer.step()
     print("Loss:", np.mean(loss_vals))
     print("Accuracy: ", 100 * total_correct / total_samples)
+
+# %%
+nn_model.load_state_dict(torch.load("../data/nn.pth")())
+
 # %%
 # Evaluation
 nn_model.eval()
@@ -95,7 +107,7 @@ print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
 # %%
 # Save model weights
-torch.save(nn_model.state_dict, "../data/nn_100_1000.pth")
+torch.save(nn_model.state_dict, "../data/nn.pth")
 
 
 # %%

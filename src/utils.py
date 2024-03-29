@@ -306,7 +306,10 @@ def get_author_num(data, sample_id, authors=['Charles Dickens', 'Jane Austen','H
 def stretch(arr, min_len, pad='<PAD>'):
     return arr + (min_len-len(arr))* [pad]
 def get_data_nn(book_samples, book_authors, stretch_len=1100, pad='pad'):
-    data = [(stretch(words, stretch_len, pad), get_author_num(book_authors, sample_id)) for sample_id, words in book_samples.items()]
+    if stretch_len is None:
+        data = [(words, get_author_num(book_authors, sample_id)) for sample_id, words in book_samples.items()]
+    else:
+        data = [(stretch(words, stretch_len, pad), get_author_num(book_authors, sample_id)) for sample_id, words in book_samples.items()]
     return data
 def get_vocab(data, vocab_size=1000):
     all_words = [word for words, _ in data for word in words]
