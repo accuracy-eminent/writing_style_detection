@@ -18,14 +18,14 @@ book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], rando
 book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
 
 # %%
-# Get size of training data
-[len(item[0]) for item in train_data]
-
-# %%
 train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, None)
 test_data = utils.get_data_nn(book_samples_test, utils.book_authors_test, None)
 vocab = utils.get_vocab(train_data)
 # Vocab is of the format: {word, number}
+
+# %%
+# Get size of training data
+[len(item[0]) for item in train_data]
 
 
 # %%
@@ -94,6 +94,10 @@ total_samples = 0
 
 with torch.no_grad():
     for inputs, labels in test_loader:
+        print(inputs)
+        print(inputs.shape)
+        print(labels)
+        print(labels.shape)
         outputs = nn_model(inputs)
         _, predicted = torch.max(outputs, 1)
         total_samples += labels.size(0)
