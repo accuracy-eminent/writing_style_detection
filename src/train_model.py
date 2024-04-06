@@ -5,6 +5,8 @@ import utils
 import model as md
 from sklearn import metrics
 import pickle
+import nltk
+nltk.download('punkt')
 
 # %%
 # Load in datasets
