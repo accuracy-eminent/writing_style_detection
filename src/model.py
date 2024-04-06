@@ -78,7 +78,7 @@ class TabularModel(Model):
     def predict(self, data):
         self.data = self._load_data(data)
         y_pred = self.model.predict_proba(self.data)
-        y_pred = self.model.predict(self.data)
+        #y_pred = self.model.predict(self.data)
         return y_pred
 
 class NNModel(Model):
@@ -110,5 +110,6 @@ class NNModel(Model):
                 print(predicted)
                 print(outputs)
                 print(nn.Softmax()(outputs))
-                y_pred = predicted.numpy()[0]
+                #y_pred = predicted.numpy()[0]
+                y_pred = nn.Softmax()(outputs).numpy()
         return y_pred

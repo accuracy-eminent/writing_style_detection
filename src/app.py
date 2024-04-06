@@ -4,6 +4,8 @@ import numpy as np
 import utils
 import model as md
 
+authors = ['Charles Dickens', 'Jane Austen', 'Herman Melville']
+
 def classify(text):
     # 0:cd 1:ja 2:hm 
     nn = True
@@ -26,5 +28,7 @@ st.write("Was the text written by Herman Melville, Jane Austen, or Charles Dicke
 text_box = st.text_area('Text to classify', placeholder='Enter text here')
 
 if st.button('Classify'):
-    chars = classify(text_box)
-    st.write(f"There are {chars} characters in the text")
+    pred_prob = classify(text_box)
+    pred_author = authors[np.argmax(pred_prob)]
+    pred_prob = np.max(pred_prob)
+    st.write(f"We are {100*pred_prob:.0f}% sure the text was written by {pred_author}")
