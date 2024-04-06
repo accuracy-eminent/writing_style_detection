@@ -7,5 +7,4 @@ COPY src /src
 COPY data /data
 # Train the model, model weights are saved to data/
 RUN python3 train_model.py
-RUN python3 -m pip install streamlit
-CMD python3 -m streamlit run --server.port 8501 app.py
+CMD streamlit run --server.port 8501 app.py

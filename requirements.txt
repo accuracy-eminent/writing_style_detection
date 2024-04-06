@@ -5,3 +5,4 @@ numpy
 plotnine
 gutenbergpy
 nltk
+streamlit
