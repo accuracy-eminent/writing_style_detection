@@ -25,8 +25,9 @@ test_df = (
     .reset_index()
     .assign(cond='test')
 )
-train_df.columns = ['book_id', 'contents', 'words', 'cond']
+test_df.columns = ['book_id', 'contents', 'words', 'cond']
+df_combined = pd.concat([train_df, test_df], axis=0)
 
-
-
+# %%
+df_combined.to_pickle("../data/data.pkl")
 # %%

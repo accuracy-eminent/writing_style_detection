@@ -10,14 +10,19 @@ nltk.download('punkt')
 
 # %%
 # Load in datasets
-book_contents_train = utils.load_book_contents(utils.book_authors_train)
-book_contents_test = utils.load_book_contents(utils.book_authors_test)
-# Tokenize the data
-books_train_wtoks = utils.wtok_books(book_contents_train)
-books_test_wtoks = utils.wtok_books(book_contents_test)
+data = pd.read_pickle('../data/data.pkl')
+train_data = data.query('cond == "train"').set_index('book_id')
+test_data = data.query('cond == "test"').set_index('book_id')
+book_contents_train = train_data.contents.to_dict()
+book_contents_test = test_data.contents.to_dict()
+# Get the tokenized data
+books_train_wtoks = train_data.words.to_dict()
+books_test_wtoks = train_data.words.to_dict()
 # Get 100 samples per book of around 1000 words each
 book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], random_seed=42)
 book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
+
+
 
 # %%
 train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, None)
