@@ -311,6 +311,12 @@ def get_data_nn(book_samples, book_authors, stretch_len=1100, pad='pad'):
     else:
         data = [(stretch(words, stretch_len, pad), get_author_num(book_authors, sample_id)) for sample_id, words in book_samples.items()]
     return data
+def get_data_nn_auto(book_samples, stretch_len=1100, pad='pad'):
+    if stretch_len is None:
+        data = [(words, sample_id.split("_")[0]) for sample_id, words in book_samples.items()]
+    else:
+        data = [(stretch(words, stretch_len, pad), sample_id.split("_")[0]) for sample_id, words in book_samples.items()]
+    return data
 def get_vocab(data, vocab_size=1000):
     all_words = [word for words, _ in data for word in words]
     word_counts = Counter(all_words)

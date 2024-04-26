@@ -11,8 +11,9 @@ nltk.download('punkt')
 # %%
 # Load in datasets
 data = pd.read_pickle('../data/data.pkl')
-train_data = data.query('cond == "train"').set_index('book_id')
-test_data = data.query('cond == "test"').set_index('book_id')
+data = data.assign(book_id_full=lambda x: x.apply(lambda a: f'{a.author_id}_{a.book_id}', axis=1))
+train_data = data.query('cond == "train"').set_index('book_id_full')
+test_data = data.query('cond == "test"').set_index('book_id_full')
 book_contents_train = train_data.contents.to_dict()
 book_contents_test = test_data.contents.to_dict()
 # Get the tokenized data
@@ -23,16 +24,15 @@ book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], rando
 book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
 
 
-
 # %%
-train_data = utils.get_data_nn(book_samples_train, utils.book_authors_train, None)
-test_data = utils.get_data_nn(book_samples_test, utils.book_authors_test, None)
-vocab = utils.get_vocab(train_data)
+train_data_nn = utils.get_data_nn_auto(book_samples_train, None)
+test_data_nn = utils.get_data_nn_auto(book_samples_test, None)
+vocab = utils.get_vocab(train_data_nn)
 # Vocab is of the format: {word, number}
 
 # %%
 # Get size of training data
-[len(item[0]) for item in train_data]
+[len(item[0]) for item in train_data_nn]
 
 
 # %%
@@ -64,8 +64,8 @@ nn_model = model.get_raw_model()
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(nn_model.parameters(), lr=0.001)
 
-train_dataset = md.TextDataset(train_data, vocab_loaded)
-test_dataset = md.TextDataset(test_data, vocab_loaded)
+train_dataset = md.TextDataset(train_data_nn, vocab_loaded)
+test_dataset = md.TextDataset(test_data_nn, vocab_loaded)
 
 
 train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
@@ -101,12 +101,15 @@ total_samples = 0
 
 with torch.no_grad():
     for inputs, labels in test_loader:
-        print(inputs)
-        print(inputs.shape)
-        print(labels)
-        print(labels.shape)
+        #print(inputs)
+        #print(inputs.shape)
+        #print(labels)
+        #print(labels.shape)
         outputs = nn_model(inputs)
         _, predicted = torch.max(outputs, 1)
+        print("---")
+        print(predicted)
+        print(labels)
         total_samples += labels.size(0)
         total_correct += (predicted == labels).sum().item()
 

@@ -4,7 +4,16 @@ import numpy as np
 import utils
 import model as md
 
-authors = ['Charles Dickens', 'Jane Austen', 'Herman Melville']
+#authors = ['Charles Dickens', 'Jane Austen', 'Herman Melville']
+authors = None
+authors = pd.read_pickle("../data/data.pkl")
+authors = (
+    pd.read_pickle("../data/data.pkl")
+    .filter(['author_name','author_id'])
+    .drop_duplicates()
+    .set_index('author_id')
+    .author_name.to_dict()
+)
 
 def classify(text):
     # 0:cd 1:ja 2:hm 
