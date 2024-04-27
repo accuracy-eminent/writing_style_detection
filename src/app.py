@@ -32,7 +32,9 @@ def classify(text):
     #return len(text)
 
 st.title("Detection of writing style")
-st.write("Was the text written by Herman Melville, Jane Austen, or Charles Dickens?")
+authors_string = ", ".join(list(authors.values())[:-1])
+authors_string += ", or " + list(authors.values())[-1]
+st.write(f"Was the text written by {authors_string}?")
 
 text_box = st.text_area('Text to classify', placeholder='Enter text here')
 
