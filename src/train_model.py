@@ -135,4 +135,3 @@ with open("../data/classification_report.txt", "w") as f:
 # %%
 # Save model weights
 torch.save(nn_model.state_dict, "../data/nn.pth")
-
