@@ -104,6 +104,8 @@ total_samples = 0
 
 y_true = []
 y_pred = []
+x_lengths = []
+
 with torch.no_grad():
     for inputs, labels in test_loader:
         #print(inputs)
@@ -112,59 +114,22 @@ with torch.no_grad():
         #print(labels.shape)
         outputs = nn_model(inputs)
         _, predicted = torch.max(outputs, 1)
-        #print("---")
-        #print(predicted)
-        #print(labels)
         total_samples += labels.size(0)
         total_correct += (predicted == labels).sum().item()
         y_true.append(labels.numpy()[0])
         y_pred.append(predicted.numpy()[0])
+        x_lengths.append(len(inputs.numpy().flatten()))
 
 accuracy = total_correct / total_samples
 print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
 # Save classification report to file
-with open("data/classification_report.txt", "w") as f:
+with open("../data/classification_report.txt", "w") as f:
     txt = classification_report(y_pred, y_true)
     print(txt)
-    f.write()
+    f.write(txt)
 
 # %%
 # Save model weights
 torch.save(nn_model.state_dict, "../data/nn.pth")
 
-
-# %%
-"""
-# Tabular model
-# Load in data
-# Do feature engineering
-# Use ngram frequency as features
-# cd_1grams is the frequency of 1-grams associated with Charles Dickens, for example
-data_df_train = utils.get_data_df(book_samples_train, utils.book_authors_train)
-data_df_test = utils.get_data_df(book_samples_test, utils.book_authors_test)
-
-# %%
-# Prepare datasets for training
-tgt_cols = data_df_test.columns
-tgt_cols = ['author_name']
-X_train = data_df_train.drop(tgt_cols,axis=1)
-y_train = data_df_train.filter(tgt_cols).to_numpy().ravel()
-X_test = data_df_test.drop(tgt_cols,axis=1)
-y_test = data_df_test.filter(tgt_cols).to_numpy().ravel()
-
-# %%
-model_tab = md.TabularModel()
-tb_model = model_tab.get_raw_model()
-# %%
-tb_model.fit(X_train, y_train)
-y_pred = tb_model.predict(X_test)
-acc = metrics.accuracy_score(y_test, y_pred)
-print("Accuracy: ", acc)
-
-# %%
-# Save model
-with open( "../data/tabular.pkl", "wb") as file:
-    pickle.dump(tb_model, file)
-# %%
-"""
