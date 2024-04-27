@@ -14,22 +14,15 @@ authors = (
     .set_index('author_id')
     .author_name.to_dict()
 )
+# Load the model
+vocab_df = pd.read_csv("../data/vocab.csv")
+vocab_loaded = pd.Series(vocab_df.num.tolist(), index=vocab_df.word.tolist()).to_dict()
+clf = md.NNModel(vocab=vocab_loaded)
+clf.load_weights("../data/nn.pth")
 
-def classify(text):
-    # 0:cd 1:ja 2:hm 
-    nn = True
-    print(text)
-    vocab_df = pd.read_csv("../data/vocab.csv")
-    vocab_loaded = pd.Series(vocab_df.num.tolist(), index=vocab_df.word.tolist()).to_dict()
-    if nn:
-        clf = md.NNModel(vocab=vocab_loaded)
-        clf.load_weights("../data/nn.pth")
-    else:
-        clf = md.TabularModel()
-        clf.load_weights("../data/tabular.pkl")
+def classify(text, clf):
     preds = clf.predict(text)
     return preds
-    #return len(text)
 
 st.title("Detection of writing style")
 authors_string = ", ".join(list(authors.values())[:-1])
@@ -39,7 +32,7 @@ st.write(f"Was the text written by {authors_string}?")
 text_box = st.text_area('Text to classify', placeholder='Enter text here')
 
 if st.button('Classify'):
-    pred_prob = classify(text_box)
+    pred_prob = classify(text_box, clf)
     pred_author = authors[np.argmax(pred_prob)]
     pred_prob = np.max(pred_prob)
     st.write(f"We are {100*pred_prob:.0f}% sure the text was written by {pred_author}")
