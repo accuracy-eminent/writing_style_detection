@@ -122,6 +122,7 @@ torch.save(nn_model.state_dict, "../data/nn.pth")
 
 
 # %%
+"""
 # Tabular model
 # Load in data
 # Do feature engineering
@@ -153,3 +154,4 @@ print("Accuracy: ", acc)
 with open( "../data/tabular.pkl", "wb") as file:
     pickle.dump(tb_model, file)
 # %%
+"""
