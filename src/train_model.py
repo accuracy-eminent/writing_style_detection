@@ -6,6 +6,7 @@ import model as md
 from sklearn import metrics
 import pickle
 import nltk
+from sklearn.metrics import classification_report
 nltk.download('punkt')
 
 # %%
@@ -18,7 +19,7 @@ book_contents_train = train_data.contents.to_dict()
 book_contents_test = test_data.contents.to_dict()
 # Get the tokenized data
 books_train_wtoks = train_data.words.to_dict()
-books_test_wtoks = train_data.words.to_dict()
+books_test_wtoks = test_data.words.to_dict()
 # Get 100 samples per book of around 1000 words each
 book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], random_seed=42)
 book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
@@ -32,7 +33,9 @@ vocab = utils.get_vocab(train_data_nn)
 
 # %%
 # Get size of training data
-[len(item[0]) for item in train_data_nn]
+#[len(item[0]) for item in train_data_nn]
+print("Train data length:", len(train_data_nn))
+print("Test data length:", len(test_data_nn))
 
 
 # %%
@@ -99,6 +102,8 @@ nn_model.eval()
 total_correct = 0
 total_samples = 0
 
+y_true = []
+y_pred = []
 with torch.no_grad():
     for inputs, labels in test_loader:
         #print(inputs)
@@ -107,14 +112,19 @@ with torch.no_grad():
         #print(labels.shape)
         outputs = nn_model(inputs)
         _, predicted = torch.max(outputs, 1)
-        print("---")
-        print(predicted)
-        print(labels)
+        #print("---")
+        #print(predicted)
+        #print(labels)
         total_samples += labels.size(0)
         total_correct += (predicted == labels).sum().item()
+        y_true.append(labels.numpy()[0])
+        y_pred.append(predicted.numpy()[0])
 
 accuracy = total_correct / total_samples
 print(f"Test Accuracy: {accuracy * 100:.2f}%")
+
+# Save classification report to file
+print(classification_report(y_pred, y_true))
 
 # %%
 # Save model weights
