@@ -4,8 +4,7 @@ import numpy as np
 import utils
 import model as md
 
-#authors = ['Charles Dickens', 'Jane Austen', 'Herman Melville']
-authors = None
+# Load in author names
 authors = pd.read_pickle("../data/data.pkl")
 authors = (
     pd.read_pickle("../data/data.pkl")
@@ -20,9 +19,6 @@ vocab_loaded = pd.Series(vocab_df.num.tolist(), index=vocab_df.word.tolist()).to
 clf = md.NNModel(vocab=vocab_loaded)
 clf.load_weights("../data/nn.pth")
 
-def classify(text, clf):
-    preds = clf.predict(text)
-    return preds
 
 st.title("Detection of writing style")
 authors_string = ", ".join(list(authors.values())[:-1])
@@ -32,7 +28,7 @@ st.write(f"Was the text written by {authors_string}?")
 text_box = st.text_area('Text to classify', placeholder='Enter text here')
 
 if st.button('Classify'):
-    pred_prob = classify(text_box, clf)
+    pred_prob = clf.predict(text_box)
     pred_author = authors[np.argmax(pred_prob)]
     pred_prob = np.max(pred_prob)
     st.write(f"We are {100*pred_prob:.0f}% sure the text was written by {pred_author}")
