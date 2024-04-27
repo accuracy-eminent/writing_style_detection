@@ -21,8 +21,8 @@ book_contents_test = test_data.contents.to_dict()
 books_train_wtoks = train_data.words.to_dict()
 books_test_wtoks = test_data.words.to_dict()
 # Get 100 samples per book of around 1000 words each
-book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 1000], random_seed=42)
-book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 1000], random_seed=42)
+book_samples_train = utils.get_samples(books_train_wtoks, 100, [10, 500], random_seed=42)
+book_samples_test = utils.get_samples(books_test_wtoks, 100, [10, 500], random_seed=42)
 
 
 # %%
@@ -124,7 +124,10 @@ accuracy = total_correct / total_samples
 print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
 # Save classification report to file
-print(classification_report(y_pred, y_true))
+with open("data/classification_report.txt", "w") as f:
+    txt = classification_report(y_pred, y_true)
+    print(txt)
+    f.write()
 
 # %%
 # Save model weights
