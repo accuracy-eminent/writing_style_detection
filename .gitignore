@@ -2,6 +2,9 @@
 texts/
 texts/*
 journal.md
+data/*
+*.bak
+
 # PyTorch
 *.pt
 *.pth
